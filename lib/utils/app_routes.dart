@@ -1,3 +1,3 @@
 class AppRoutes {
-  static const AUTH_HOME = '/';
+  static const CHAT_SCREEN = '/chat-screen';
 }
