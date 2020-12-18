@@ -1,4 +1,5 @@
 import 'package:chat_flutter/utils/default_colors.dart';
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chat_flutter/utils/app_routes.dart';
@@ -16,11 +17,11 @@ class MyApp extends StatelessWidget {
       title: 'Flutter Chat',
       theme: ThemeData(
         primarySwatch: Colors.teal,
-        backgroundColor: DefaultColores.PRIMARY,
-        accentColor: DefaultColores.SECUNDARY,
+        backgroundColor: DefaultColors.PRIMARY,
+        accentColor: DefaultColors.SECUNDARY,
         accentColorBrightness: Brightness.light,
         buttonTheme: ButtonTheme.of(context).copyWith(
-          buttonColor: DefaultColores.TERTIARY,
+          buttonColor: DefaultColors.TERTIARY,
           textTheme: ButtonTextTheme.normal,
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(20),
@@ -28,7 +29,16 @@ class MyApp extends StatelessWidget {
         ),
         visualDensity: VisualDensity.adaptivePlatformDensity,
       ),
-      home: AuthScreen(),
+      home: StreamBuilder(
+        stream: FirebaseAuth.instance.onAuthStateChanged,
+        builder: (context, snapshot) {
+          if (snapshot.hasData) {
+            return ChatScreen();
+          } else {
+            return AuthScreen();
+          }
+        },
+      ),
       routes: {
         AppRoutes.CHAT_SCREEN: (ctx) => ChatScreen(),
       },
