@@ -2,6 +2,7 @@ import 'package:chat_flutter/models/auth_data.dart';
 import 'package:chat_flutter/utils/default_colors.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/material.dart';
 
 import 'package:chat_flutter/widget/auth_form.dart';
@@ -32,9 +33,18 @@ class _AuthScreenState extends State<AuthScreen> {
           email: authData.email.trim(),
           password: authData.password,
         );
+        final ref = FirebaseStorage.instance
+            .ref()
+            .child('user_image')
+            .child(authResult.user.uid + '.jpg');
+
+        await ref.putFile(authData.image).onComplete;
+        final url = await ref.getDownloadURL();
+
         final userData = {
           'name': authData.name,
           'email': authData.email,
+          'imageUrl': url,
         };
 
         await Firestore.instance
@@ -66,26 +76,28 @@ class _AuthScreenState extends State<AuthScreen> {
       backgroundColor: Theme.of(context).backgroundColor,
       //body: AuthForm(_handleSubmit),
       body: Center(
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Stack(
-              children: [
-                AuthForm(_handleSubmit),
-                if (_isLoading)
-                  Positioned.fill(
-                    child: Container(
-                      margin: EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                          color: DefaultColors.QUATERNARY.withOpacity(0.5)),
-                      child: Center(
-                        child: CircularProgressIndicator(),
+        child: SingleChildScrollView(
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              Stack(
+                children: [
+                  AuthForm(_handleSubmit),
+                  if (_isLoading)
+                    Positioned.fill(
+                      child: Container(
+                        margin: EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                            color: DefaultColors.QUATERNARY.withOpacity(0.5)),
+                        child: Center(
+                          child: CircularProgressIndicator(),
+                        ),
                       ),
-                    ),
-                  )
-              ],
-            ),
-          ],
+                    )
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
