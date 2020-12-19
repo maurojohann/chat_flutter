@@ -23,22 +23,22 @@ class _AuthScreenState extends State<AuthScreen> {
     setState(() {
       _isLoading = true;
     });
-    AuthResult authResult;
+    UserCredential userCredential;
     try {
       if (authData.isLogin) {
-        authResult = await _auth.signInWithEmailAndPassword(
+        userCredential = await _auth.signInWithEmailAndPassword(
             email: authData.email.trim(), password: authData.password);
       } else {
-        authResult = await _auth.createUserWithEmailAndPassword(
+        userCredential = await _auth.createUserWithEmailAndPassword(
           email: authData.email.trim(),
           password: authData.password,
         );
         final ref = FirebaseStorage.instance
             .ref()
             .child('user_image')
-            .child(authResult.user.uid + '.jpg');
+            .child(userCredential.user.uid + '.jpg');
 
-        await ref.putFile(authData.image).onComplete;
+        ref.putFile(authData.image);
         final url = await ref.getDownloadURL();
 
         final userData = {
@@ -47,10 +47,10 @@ class _AuthScreenState extends State<AuthScreen> {
           'imageUrl': url,
         };
 
-        await Firestore.instance
+        await FirebaseFirestore.instance
             .collection('users')
-            .document(authResult.user.uid)
-            .setData(userData);
+            .doc(userCredential.user.uid)
+            .set(userData);
       }
     } on PlatformException catch (err) {
       final msg = err.message ?? 'Ocorreu um erro!';

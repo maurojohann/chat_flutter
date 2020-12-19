@@ -1,5 +1,3 @@
-import 'dart:io';
-
 import 'package:chat_flutter/utils/default_colors.dart';
 import 'package:flutter/material.dart';
 
